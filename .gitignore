@@ -1,0 +1,13 @@
+# Python
+__pycache__/*
+.venv/*
+
+# VS Code
+.vscode/*
+
+# config
+*.json
+!template_config.json
+
+# sqlite
+*.sqlite

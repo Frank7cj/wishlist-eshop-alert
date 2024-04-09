@@ -1,16 +1,19 @@
 import argparse
 import json
+from datetime import datetime
 
 import requests
 
-from utils import get_locale_from_url, get_skus_from_url
+from utils import (get_discounted_games, get_locale_from_url,
+                   get_skus_from_url, print_discounted_games)
 
 LOCALE_MAP = {'es-pe': 'es_PE', 'en-us': 'en_US'}
 
 
 def main(wishlist_url: str, api_endpoint: str, extensions: dict, headers: dict):
 
-    locale = LOCALE_MAP.get(get_locale_from_url(wishlist_url))
+    locale_url = get_locale_from_url(wishlist_url)
+    locale = LOCALE_MAP.get(locale_url)
     skus = get_skus_from_url(wishlist_url)
 
     variables = {
@@ -35,8 +38,16 @@ def main(wishlist_url: str, api_endpoint: str, extensions: dict, headers: dict):
                                 headers=headers)
 
     if response.status_code == 200:
-        with open('wishlist_games.json', 'w') as file:
-            json.dump(response.json(), file)
+        games_info = response.json()
+        current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        with open(f'{current_datetime}-wishlist_games.json', 'w') as file:
+            json.dump(games_info, file)
+
+        discounted_games = get_discounted_games(games_info)
+
+        print_discounted_games(discounted_games, locale_url)
+
     else:
         print(f"Failed to fetch data. Status code: {response.status_code}")
 

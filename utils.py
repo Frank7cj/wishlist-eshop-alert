@@ -1,5 +1,8 @@
+from datetime import datetime
 import re
 from urllib.parse import parse_qs, urlparse
+
+from sqlite_connection import SQLiteConnection
 
 
 def get_locale_from_url(url: str) -> str:
@@ -24,12 +27,10 @@ def get_skus_from_url(url: str) -> list:
         return None
 
 
-def get_discounted_games(games_info: dict) -> list:
-    products = games_info['data']['products']
-
+def get_discounted_games(games_list: dict) -> list:
     discounted_games = []
 
-    for game in products:
+    for game in games_list:
         price = game['prices']['minimum']
         if price['discounted']:
             discounted_games.append(game)
@@ -37,7 +38,8 @@ def get_discounted_games(games_info: dict) -> list:
     return discounted_games
 
 
-def print_discounted_games(discounted_games: list, locale_url: str):
+def print_discounted_games(discounted_games: list, locale_url: str,
+                           lowest_prices: list = []):
     print('-'*50)
     print("! Alert Nintendo eShop game(s) in discount")
     for game in discounted_games:
@@ -46,3 +48,23 @@ def print_discounted_games(discounted_games: list, locale_url: str):
         price = game['prices']['minimum']
         print(
             f"\tOriginal price: {price['regularPrice']:>6.2f}\t\t-- {price['percentOff']:>6.2f}% off -->\t\tFinal Price: {price['finalPrice']:>6.2f}")
+
+
+def insert_info_games(sqlite_connection: SQLiteConnection, game_list: list):
+    for game in game_list:
+        sql_game = {
+            'sku': game['sku'],
+            'name': game['name'],
+            'url_key': game['urlKey'],
+            'price': game['prices']['minimum']['finalPrice'],
+            'original_price': game['prices']['minimum']['regularPrice'],
+            'discount_percentage': game['prices']['minimum']['percentOff'],
+            'discounted': game['prices']['minimum']['discounted'],
+            'timestamp_value': int(datetime.now().timestamp())
+        }
+        sqlite_connection.insert('wishlist_games', sql_game)
+    return 0
+
+
+def get_lowest_prices(sqlite_connection: SQLiteConnection, discounted_games: list):
+    return 0

@@ -109,3 +109,21 @@ class SQLiteConnection:
         except sqlite3.Error as execute_sql_error:
             print(f"Error executing SQL: {execute_sql_error}")
             return -1  # Error
+
+    def select(self, sql_query: str) -> list:
+        """
+        Execute a SQL query and retrieve the results as a list of tuples.
+
+        Parameters:
+            sql_query (str): The SQL query to execute.
+
+        Returns:
+            list: A list of tuples containing the results of the query.
+        """
+        try:
+            self.cursor.execute(sql_query)
+            results = self.cursor.fetchall()
+            return results
+        except sqlite3.Error as select_error:
+            print(f"Error executing SQL: {select_error}")
+            return None

@@ -39,15 +39,20 @@ def get_discounted_games(games_list: dict) -> list:
 
 
 def print_discounted_games(discounted_games: list, locale_url: str,
-                           lowest_prices: list = []):
-    print('-'*50)
-    print("! Alert Nintendo eShop game(s) in discount")
+                           all_time_discounted_games: list = []):
+    print('-'*100)
+    print("! Alert Nintendo eShop game(s) in discount\n")
     for game in discounted_games:
         print(
             f"{game['name']} | https://www.nintendo.com/{locale_url}/store/products/{game['urlKey']}")
         price = game['prices']['minimum']
+        all_time_discounted_flag = ''
+        if game['sku'] in all_time_discounted_games:
+            all_time_discounted_flag = ' ⚠'
         print(
-            f"\tOriginal price: {price['regularPrice']:>6.2f}\t\t-- {price['percentOff']:>6.2f}% off -->\t\tFinal Price: {price['finalPrice']:>6.2f}")
+            f"\tOriginal price: {price['regularPrice']:>6.2f}\t\t-- {price['percentOff']:>6.2f}% off -->\t\tFinal Price: {price['finalPrice']:>6.2f}{all_time_discounted_flag}")
+
+    print('\n⚠ -> Lowest price recorded for game in discount\n')
 
 
 def insert_info_games(sqlite_connection: SQLiteConnection, game_list: list):
@@ -66,5 +71,18 @@ def insert_info_games(sqlite_connection: SQLiteConnection, game_list: list):
     return 0
 
 
-def get_lowest_prices(sqlite_connection: SQLiteConnection, discounted_games: list):
-    return 0
+def get_all_time_discounted_games(sqlite_connection: SQLiteConnection, discounted_games: list) -> list:
+    all_discounted_skus = []
+    for game in discounted_games:
+        query = f"SELECT MIN(price) AS lowest_price FROM wishlist_games WHERE sku = {game['sku']};"
+        result = sqlite_connection.select(query)
+
+        lowest_price = None
+        if len(result) > 0 and len(result[0]) > 0:
+            lowest_price = result[0][0]
+
+        if lowest_price is not None and\
+                lowest_price >= game['prices']['minimum']['finalPrice']:
+            all_discounted_skus.append(game['sku'])
+
+    return all_discounted_skus

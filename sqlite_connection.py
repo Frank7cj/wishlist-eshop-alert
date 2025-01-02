@@ -127,3 +127,10 @@ class SQLiteConnection:
         except sqlite3.Error as select_error:
             print(f"Error executing SQL: {select_error}")
             return None
+
+    def close(self):
+        """
+        Close the connection to the SQLite database.
+        """
+        self.cursor.close()
+        self.connection.close()

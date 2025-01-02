@@ -75,6 +75,8 @@ def main(wishlist_url: str, api_endpoint: str, extensions: dict,
             all_time_discounted_games = get_all_time_discounted_games(
                 sqlite_connection, discounted_games)
 
+            sqlite_connection.close()
+
         print_discounted_games(
             discounted_games, locale_url, all_time_discounted_games)
 

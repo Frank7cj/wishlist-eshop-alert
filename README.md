@@ -20,8 +20,8 @@ A Python-based tool to monitor and alert users about discounted games on the Nin
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/alert-eshop-wishlist.git
-   cd alert-eshop-wishlist
+   git clone https://github.com/Frank7cj/wishlist-eshop-alert.git
+   cd wishlist-eshop-alert
    ```
 
 2. Create a virtual environment and activate it:
